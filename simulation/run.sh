@@ -1,0 +1,1 @@
+python simulate_buses.py --buses 5 --status finished

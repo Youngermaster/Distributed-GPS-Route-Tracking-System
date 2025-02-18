@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 # MongoDB Configuration
 MONGO_URI = "mongodb://root:examplepassword@localhost:27017"
 mongo_client = MongoClient(MONGO_URI)
-db = mongo_client["route_database"]
+db = mongo_client["distributed_gps_route_tracking_system"]
 
 # Sample Route Document with Empty Directions
 route_document = {
