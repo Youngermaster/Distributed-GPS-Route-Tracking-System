@@ -1,0 +1,15 @@
+%{
+  "cowlib": {:hex, :cowlib, "2.11.0", "0b9ff9c346629256c42ebe1eeb769a83c6cb771a6ee5960bd110ab0b9b872063", [:make, :rebar3], [], "hexpm", "2b3e9da0b21c4565751a6d4901c20d1b4cc25cbb7fd50d91d2ab6dd287bc86a9"},
+  "distance": {:hex, :distance, "1.1.3", "ab898bc7d4d23dba1c7275180323dd51f1106b9826860d15030d5afde6fed32d", [:mix], [{:seg_seg, "~> 0.1 or ~> 1.0", [hex: :seg_seg, repo: "hexpm", optional: false]}], "hexpm", "fa3fe3d827a089f07eed5fa3a46e8b54aa0e6056e464090986d0ea3b0b1051b1"},
+  "emqtt": {:git, "https://github.com/emqx/emqtt.git", "b3c6cba48cdf15c3e573ebcaf94502249ade6689", [tag: "1.4.4"]},
+  "geo": {:hex, :geo, "4.0.1", "f4ae3fd912b0536bfe9ec3bce15eb554197ab0739c01297c8534c20dcedd561c", [:mix], [{:jason, "~> 1.4", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm", "32eb624feff75d043bbdd43f67e3869c5fc729e221333271b07cdc98ba98563d"},
+  "getopt": {:hex, :getopt, "1.0.2", "33d9b44289fe7ad08627ddfe1d798e30b2da0033b51da1b3a2d64e72cd581d02", [:rebar3], [], "hexpm", "a0029aea4322fb82a61f6876a6d9c66dc9878b6cb61faa13df3187384fd4ea26"},
+  "gun": {:git, "https://github.com/emqx/gun", "e1b5e14139e2a936ad6561bf960f70f1e80b81e2", [tag: "1.3.4"]},
+  "jason": {:hex, :jason, "1.4.4", "b9226785a9aa77b6857ca22832cffa5d5011a667207eb2a0ad56adb5db443b8a", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "c5eb0cab91f094599f94d55bc63409236a8ec69a21a67814529e8d5f6cc90b3b"},
+  "nimble_options": {:hex, :nimble_options, "1.1.1", "e3a492d54d85fc3fd7c5baf411d9d2852922f66e69476317787a7b2bb000a61b", [:mix], [], "hexpm", "821b2470ca9442c4b6984882fe9bb0389371b8ddec4d45a9504f00a66f650b44"},
+  "redix": {:hex, :redix, "1.5.2", "ab854435a663f01ce7b7847f42f5da067eea7a3a10c0a9d560fa52038fd7ab48", [:mix], [{:castore, "~> 0.1.0 or ~> 1.0", [hex: :castore, repo: "hexpm", optional: true]}, {:nimble_options, "~> 0.5.0 or ~> 1.0", [hex: :nimble_options, repo: "hexpm", optional: false]}, {:telemetry, "~> 0.4.0 or ~> 1.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "78538d184231a5d6912f20567d76a49d1be7d3fca0e1aaaa20f4df8e1142dcb8"},
+  "seg_seg": {:hex, :seg_seg, "1.0.0", "018dde9369d022ca5b57ccaa38b8a79e378883e7ec65081ed46932c79291f70c", [:mix], [{:vector, "~> 1.0", [hex: :vector, repo: "hexpm", optional: false]}], "hexpm", "19fc9008d727a3cfb1f16fc6b3d6bed110d5c4246b1879494bf0a104f422262c"},
+  "simplify": {:hex, :simplify, "2.0.1", "33879fb6a338bed2f3e9f1a1d0a7dd881aaa0c56f2c80ca1ef1e0ef2d31426ad", [:mix], [{:distance, "~> 1.0", [hex: :distance, repo: "hexpm", optional: false]}, {:geo, "~> 3.1 or ~> 4.0", [hex: :geo, repo: "hexpm", optional: false]}], "hexpm", "19fda0017f52c6980b47ca83ae92ef15564422b69add921947abddfe996eef48"},
+  "telemetry": {:hex, :telemetry, "1.3.0", "fedebbae410d715cf8e7062c96a1ef32ec22e764197f70cda73d82778d61e7a2", [:rebar3], [], "hexpm", "7015fc8919dbe63764f4b4b87a95b7c0996bd539e0d499be6ec9d7f3875b79e6"},
+  "vector": {:hex, :vector, "1.1.0", "0789b5e00e9c551d8d5880acab9a8f44ed46690d083af397018bf0c7f30c1092", [:mix], [], "hexpm", "48b0a800ec88e55b12c689b09100e4c9ba41ea1befb459221c085a4e70040696"},
+}
