@@ -32,10 +32,10 @@ services:
     restart: always
 
   redisinsight:
-    image: redislabs/redisinsight:latest
+    image: redis/redisinsight:latest
     container_name: redisinsight
     ports:
-      - "8001:8001"
+      - "5540:5540"
     restart: always
     depends_on:
       - redis
