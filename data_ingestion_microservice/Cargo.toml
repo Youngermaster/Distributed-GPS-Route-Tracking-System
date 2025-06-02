@@ -1,16 +1,62 @@
 [package]
 name = "data_ingestion_microservice"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+authors = ["Juan Manuel Young <Youngermaster>"]
+description = "A high-performance data ingestion microservice for GPS route tracking"
+license = "Apache-2.0"
+repository = "https://github.com/Youngermaster/Distributed-GPS-Route-Tracking-System"
+keywords = ["gps", "mqtt", "microservice", "route-tracking"]
+categories = ["network-programming", "database"]
+
+[features]
+default = ["full"]
+full = ["metrics", "health-checks"]
+metrics = []
+health-checks = []
 
 [dependencies]
-futures = "0.3.28"
-geo = "0.29.3"
-log = "0.4"
-mongodb= "3.2.1"
-pretty_env_logger = "0.4"
-redis = { version = "0.29.0", features = ["aio", "tokio-comp"] }
-rumqttc = "0.24.0"
-serde = "1.0.188"
-serde_json = "1.0.138"
-tokio = { version = "1", features = ["full"] }
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3.30"
+
+# Logging
+log = "0.4.20"
+pretty_env_logger = "0.5.0"
+
+# Error handling
+thiserror = "1.0.56"
+anyhow = "1.0.79"
+
+# Serialization
+serde = { version = "1.0.195", features = ["derive"] }
+serde_json = "1.0.111"
+
+# Database clients
+mongodb = { version = "2.8.0", features = ["tokio-runtime"] }
+redis = { version = "0.24.0", features = ["aio", "tokio-comp"] }
+
+# MQTT client
+rumqttc = { version = "0.24.0", features = ["use-rustls"] }
+
+# Geospatial algorithms
+geo = { version = "0.27.0", features = ["use-serde"] }
+
+[dev-dependencies]
+tokio-test = "0.4.3"
+tempfile = "3.8.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+[profile.test]
+opt-level = 1
+debug = true
