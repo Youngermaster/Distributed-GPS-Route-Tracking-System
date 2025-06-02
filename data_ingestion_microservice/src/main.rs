@@ -6,7 +6,6 @@ use crate::config::Config;
 use crate::route_simplification::RouteSimplifier;
 use crate::types::{BusMessage, BusStatus, Location};
 
-use futures::StreamExt;
 use log::{error, info};
 use mongodb::{bson::doc, Client as MongoClient};
 use redis::AsyncCommands;
