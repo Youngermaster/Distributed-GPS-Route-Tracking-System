@@ -40,6 +40,7 @@ type Point struct {
 
 // DataIngestionService holds all service dependencies
 type DataIngestionService struct {
+	config           Config
 	mqttClient       mqtt.Client
 	redisClient      *redis.Client
 	mongoClient      *mongo.Client
@@ -52,10 +53,15 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Starting Data Ingestion Microservice")
 
+	// Load configuration
+	config := LoadConfig()
+	log.Printf("Loaded configuration: MQTT=%s:%d, Redis=%s, MongoDB=%s", 
+		config.MQTT.Broker, config.MQTT.Port, config.Redis.Address, config.MongoDB.Database)
+
 	ctx := context.Background()
 
 	// Initialize service
-	service, err := NewDataIngestionService(ctx)
+	service, err := NewDataIngestionService(ctx, config)
 	if err != nil {
 		log.Fatalf("Failed to initialize service: %v", err)
 	}
@@ -73,9 +79,10 @@ func main() {
 }
 
 // NewDataIngestionService creates and initializes a new service instance
-func NewDataIngestionService(ctx context.Context) (*DataIngestionService, error) {
+func NewDataIngestionService(ctx context.Context, config Config) (*DataIngestionService, error) {
 	service := &DataIngestionService{
-		ctx: ctx,
+		config: config,
+		ctx:    ctx,
 	}
 
 	// Setup Redis connection
@@ -99,9 +106,9 @@ func NewDataIngestionService(ctx context.Context) (*DataIngestionService, error)
 // setupRedis initializes Redis connection
 func (s *DataIngestionService) setupRedis() error {
 	s.redisClient = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       0,
+		Addr:     s.config.Redis.Address,
+		Password: s.config.Redis.Password,
+		DB:       s.config.Redis.DB,
 	})
 
 	// Test connection
@@ -116,7 +123,7 @@ func (s *DataIngestionService) setupRedis() error {
 
 // setupMongoDB initializes MongoDB connection
 func (s *DataIngestionService) setupMongoDB(ctx context.Context) error {
-	clientOptions := options.Client().ApplyURI("mongodb://root:examplepassword@127.0.0.1:27017")
+	clientOptions := options.Client().ApplyURI(s.config.MongoDB.URI)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %w", err)
@@ -129,8 +136,8 @@ func (s *DataIngestionService) setupMongoDB(ctx context.Context) error {
 	}
 
 	s.mongoClient = client
-	db := client.Database("distributed_gps_route_tracking_system")
-	s.tripsCollection = db.Collection("trips")
+	db := client.Database(s.config.MongoDB.Database)
+	s.tripsCollection = db.Collection(s.config.MongoDB.Collection)
 
 	log.Println("Connected to MongoDB")
 	return nil
@@ -139,8 +146,8 @@ func (s *DataIngestionService) setupMongoDB(ctx context.Context) error {
 // setupMQTT initializes MQTT connection and subscription
 func (s *DataIngestionService) setupMQTT() error {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker("tcp://localhost:1883")
-	opts.SetClientID("go_data_ingestion_client")
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", s.config.MQTT.Broker, s.config.MQTT.Port))
+	opts.SetClientID(s.config.MQTT.ClientID)
 	opts.SetKeepAlive(5 * time.Second)
 	opts.SetDefaultPublishHandler(s.messageHandler)
 	opts.SetConnectionLostHandler(func(client mqtt.Client, err error) {
@@ -154,12 +161,12 @@ func (s *DataIngestionService) setupMQTT() error {
 	}
 
 	// Subscribe to drivers location topic
-	token = s.mqttClient.Subscribe("drivers_location/#", 1, s.messageHandler)
+	token = s.mqttClient.Subscribe(s.config.MQTT.Topic, 1, s.messageHandler)
 	if token.Wait() && token.Error() != nil {
 		return fmt.Errorf("failed to subscribe to MQTT topic: %w", token.Error())
 	}
 
-	log.Println("Connected to MQTT broker and subscribed to drivers_location/#")
+	log.Printf("Connected to MQTT broker and subscribed to %s", s.config.MQTT.Topic)
 	return nil
 }
 
@@ -233,8 +240,7 @@ func (s *DataIngestionService) handleFinished(key string, busMsg BusMessage) err
 	}
 
 	// Simplify the route using Ramer-Douglas-Peucker algorithm
-	tolerance := 0.0001
-	simplifiedPoints := simplifyRoute(points, tolerance)
+	simplifiedPoints := simplifyRoute(points, s.config.RouteSimplification.Tolerance)
 
 	log.Printf("Route %s finished. Original points: %d, Simplified points: %d", key, len(points), len(simplifiedPoints))
 
