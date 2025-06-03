@@ -112,17 +112,65 @@ docker-build: ## Build Docker image
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 	@echo "$(GREEN)Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
 
+.PHONY: docker-build-dev
+docker-build-dev: ## Build Docker image with development tag
+	@echo "$(YELLOW)Building development Docker image...$(NC)"
+	docker build -t $(DOCKER_IMAGE):dev .
+	@echo "$(GREEN)Development Docker image built: $(DOCKER_IMAGE):dev$(NC)"
+
 .PHONY: docker-run
-docker-run: ## Run the application in Docker
-	@echo "$(YELLOW)Running in Docker...$(NC)"
+docker-run: ## Run the application in Docker with host network
+	@echo "$(YELLOW)Running in Docker (requires external services)...$(NC)"
 	docker run --rm -it \
 		--network host \
 		$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+.PHONY: docker-run-with-services
+docker-run-with-services: ## Run with Docker Compose services
+	@echo "$(YELLOW)Starting services and running container...$(NC)"
+	cd .. && docker-compose up -d
+	sleep 5
+	docker run --rm -it \
+		--network host \
+		-e MQTT_BROKER=localhost \
+		-e REDIS_ADDRESS=127.0.0.1:6379 \
+		-e MONGODB_URI=mongodb://root:examplepassword@127.0.0.1:27017 \
+		$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+.PHONY: docker-inspect
+docker-inspect: ## Inspect Docker image details
+	@echo "$(YELLOW)Docker image details:$(NC)"
+	@docker images $(DOCKER_IMAGE):$(DOCKER_TAG)
+	@echo ""
+	@echo "$(YELLOW)Image layers:$(NC)"
+	@docker history $(DOCKER_IMAGE):$(DOCKER_TAG)
+
+.PHONY: docker-shell
+docker-shell: ## Get shell access to the container (for debugging)
+	@echo "$(YELLOW)Opening shell in container...$(NC)"
+	docker run --rm -it \
+		--entrypoint /bin/sh \
+		--network host \
+		$(DOCKER_IMAGE):$(DOCKER_TAG) || \
+		echo "$(RED)Note: This image uses 'scratch' base, no shell available$(NC)"
+
+.PHONY: docker-test
+docker-test: ## Test the Docker image
+	@echo "$(YELLOW)Testing Docker image...$(NC)"
+	@docker run --rm $(DOCKER_IMAGE):$(DOCKER_TAG) --help || echo "$(GREEN)Image test completed$(NC)"
 
 .PHONY: docker-push
 docker-push: ## Push Docker image to registry
 	@echo "$(YELLOW)Pushing Docker image...$(NC)"
 	docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
+
+.PHONY: docker-clean
+docker-clean: ## Clean Docker artifacts
+	@echo "$(YELLOW)Cleaning Docker artifacts...$(NC)"
+	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG) 2>/dev/null || true
+	docker rmi $(DOCKER_IMAGE):dev 2>/dev/null || true
+	docker system prune -f
+	@echo "$(GREEN)Docker cleanup completed$(NC)"
 
 # Development environment
 .PHONY: dev-start

@@ -1,0 +1,57 @@
+# =============================================================================
+# .dockerignore - Reduce Docker build context size
+# =============================================================================
+
+# Development artifacts
+coverage.html
+coverage.out
+data-ingestion-service
+*.test
+*.prof
+
+# Version control
+.git
+.gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+!.env.example
+env.example
+
+# Documentation and config (not needed in container)
+README.md
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Build artifacts
+bin/
+tmp/
+vendor/
+
+# Test artifacts
+testdata/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

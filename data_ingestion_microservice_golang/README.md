@@ -9,20 +9,21 @@ The microservice follows a clean, modular architecture with separated concerns:
 ```bash
 data_ingestion_microservice_golang/
 ├── main.go                              # Application entry point
-├── internal/                            # Private application packages
-│   ├── config/                          # Configuration management
-│   │   └── config.go                    # Environment variable loading
-│   ├── types/                           # Data structures and types
-│   │   └── types.go                     # Common types (Location, BusMessage, Config)
-│   ├── algorithm/                       # Route simplification algorithms
-│   │   ├── simplification.go            # Douglas-Peucker implementation
-│   │   └── simplification_test.go       # Algorithm tests and benchmarks
-│   ├── database/                        # Database connection management
-│   │   └── connections.go               # Redis, MongoDB, MQTT managers
-│   └── service/                         # Business logic
-│       └── ingestion_service.go         # Main service implementation
+├── config/                              # Configuration management
+│   └── config.go                        # Environment variable loading
+├── types/                               # Data structures and types
+│   └── types.go                         # Common types (Location, BusMessage, Config)
+├── algorithm/                           # Route simplification algorithms
+│   ├── simplification.go                # Douglas-Peucker implementation
+│   └── simplification_test.go           # Algorithm tests and benchmarks
+├── database/                            # Database connection management
+│   └── connections.go                   # Redis, MongoDB, MQTT managers
+├── service/                             # Business logic
+│   └── ingestion_service.go             # Main service implementation
 ├── go.mod                               # Go module definition
 ├── go.sum                               # Dependency checksums
+├── Dockerfile                           # Multi-stage Docker build
+├── .dockerignore                        # Docker build context optimization
 ├── Makefile                             # Build and development commands
 └── README.md                            # This file
 ```
@@ -38,6 +39,69 @@ data_ingestion_microservice_golang/
 - **Comprehensive Testing**: Unit tests and benchmarks for algorithms
 - **Configuration Management**: Environment variable-based configuration
 - **Performance Metrics**: Route compression statistics and monitoring
+- **Docker Ready**: Multi-stage Docker build for minimal production images
+
+## 🐳 Docker Deployment
+
+### Multi-stage Dockerfile
+
+The service uses a sophisticated multi-stage Docker build:
+
+```dockerfile
+# Stage 1: Builder - Go compilation environment
+FROM golang:1.24.1-alpine AS builder
+# ... compile binary with optimizations
+
+# Stage 2: Runtime - Minimal scratch-based image
+FROM scratch AS runtime
+# ... only binary + essential files
+```
+
+### Key Docker Features
+
+- **Minimal Size**: Final image is only **~10.7MB**
+- **Security**: Scratch-based runtime with no shell or package manager
+- **Performance**: Statically linked binary with no dependencies
+- **Optimization**: Multi-layer caching for faster rebuilds
+
+### Docker Commands
+
+```bash
+# Build production image
+make docker-build
+
+# Build development image
+make docker-build-dev
+
+# Run with external services (requires Redis/MongoDB/MQTT)
+make docker-run
+
+# Run with Docker Compose services
+make docker-run-with-services
+
+# Inspect image details and layers
+make docker-inspect
+
+# Test the Docker image
+make docker-test
+
+# Clean Docker artifacts
+make docker-clean
+```
+
+### Environment Variables
+
+The Docker image supports all configuration via environment variables:
+
+```bash
+docker run --rm -it \
+  -e MQTT_BROKER=localhost \
+  -e MQTT_PORT=1883 \
+  -e REDIS_ADDRESS=127.0.0.1:6379 \
+  -e MONGODB_URI=mongodb://root:password@localhost:27017 \
+  -e ROUTE_TOLERANCE=0.0001 \
+  data-ingestion-service:latest
+```
 
 ## 🚀 Quick Start
 
@@ -47,8 +111,9 @@ data_ingestion_microservice_golang/
 - Redis server
 - MongoDB server
 - MQTT broker (EMQX recommended)
+- Docker (optional)
 
-### Installation
+### Local Development
 
 ```bash
 # Clone the repository
@@ -58,11 +123,21 @@ cd data_ingestion_microservice_golang
 # Install dependencies
 go mod tidy
 
-# Build the application
-make build
+# Start infrastructure services
+make dev-start
 
 # Run the service
 make run
+```
+
+### Docker Deployment
+
+```bash
+# Build the Docker image
+make docker-build
+
+# Start infrastructure and run containerized service
+make docker-run-with-services
 ```
 
 ### Using Docker Compose
@@ -75,6 +150,8 @@ make dev-start
 
 # In another terminal, run the Go service
 make run
+# or
+make docker-run
 ```
 
 ## ⚙️ Configuration
@@ -189,11 +266,11 @@ make lint           # Run linter (if available)
 
 ### Code Organization
 
-- **`internal/config/`**: Environment variable parsing and validation
-- **`internal/types/`**: Shared data structures and types
-- **`internal/algorithm/`**: Route simplification algorithms with comprehensive tests
-- **`internal/database/`**: Database connection management and health checks
-- **`internal/service/`**: Main business logic and message processing
+- **`config/`**: Environment variable parsing and validation
+- **`types/`**: Shared data structures and types
+- **`algorithm/`**: Route simplification algorithms with comprehensive tests
+- **`database/`**: Database connection management and health checks
+- **`service/`**: Main business logic and message processing
 - **`main.go`**: Application bootstrap and graceful shutdown
 
 ## 📊 Monitoring and Health Checks
@@ -251,6 +328,7 @@ This Go implementation offers several improvements over the original Rust versio
 - **Flexible Configuration**: Environment-based configuration
 - **Comprehensive Testing**: Unit tests and benchmarks
 - **Documentation**: Extensive code documentation
+- **Docker Optimization**: Multi-stage builds for production deployment
 
 ### Performance
 
